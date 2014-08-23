@@ -1,0 +1,131 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation Sample Template Kibana",
+
+  "Parameters" : {
+
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String"
+    },
+
+    "InstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "m1.small",
+      "AllowedValues" : [ "m1.tiny", "m1.small", "m1.medium", "m1.large", "m1.xlarge" ],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    "LinuxDistribution": {
+      "Default": "U14",
+      "Description" : "Distribution of choice",
+      "Type": "String"
+    }
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "m1.tiny"    : { "Arch" : "32" },
+      "m1.small"    : { "Arch" : "64" },
+      "m1.medium"    : { "Arch" : "64" },
+      "m1.large"   : { "Arch" : "64" },
+      "m1.xlarge"   : { "Arch" : "64" }
+    },
+    "DistroArch2AMI": {
+      "U10"      : { "32" : "U10-i386-cfntools", "64" : "U10-x86_64-cfntools" },
+      "U14"      : { "32" : "U14-i386-cfntools", "64" : "U14-x86_64-cfntools" }
+    }
+  },
+
+  "Resources" : {
+    "ElasticSearch": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "packages" : {
+              "apt" : {
+                 "openjdk-7-jre-headless" : []
+              }
+            },
+            "services" : {
+              "sysvinit" : {
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "DistroArch2AMI", { "Ref" : "LinuxDistribution" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref" : "InstanceType" },
+        "KeyName"        : { "Ref" : "KeyName" },
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "/opt/aws/bin/cfn-init\n",
+          "sed -i \"s/localhost/localhost $(hostname)/1\" /etc/hosts\n",
+          "wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.1.1.tar.gz\n",
+          "tar xzvf elasticsearch-1.1.1.tar.gz\n",
+          "elasticsearch-1.1.1/bin/elasticsearch &\n"
+        ]]}}
+      }
+    },
+    "WebServer": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "packages" : {
+              "apt" : {
+                 "apache2" : []
+             }
+            },
+            "services" : {
+              "sysvinit" : {
+                "apache2"  : { "enabled" : "true", "ensureRunning" : "true" }
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "DistroArch2AMI", { "Ref" : "LinuxDistribution" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref" : "InstanceType" },
+        "KeyName"        : { "Ref" : "KeyName" },
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "/usr/bin/cfn-init\n",
+          "sed -i \"s/localhost/localhost $(hostname)/1\" /etc/hosts\n",
+          "wget https://download.elasticsearch.org/kibana/kibana/kibana-3.0.1.tar.gz\n",
+          "tar xzvf kibana-3.0.1.tar.gz\n",
+          "#sed -i \"s/\"\\\"+window.location.hostname+\\\"\"/", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, "/g\" kibana-3.0.1/config.js\n",
+          "#sed -i \"s/\"\\\"+window.location.hostname+\\\"\"/", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, "/g\" kibana-3.0.1/config.js\n",
+          "sed -i \"s/:9200/\\\/elasticsearch\\\//g\" kibana-3.0.1/config.js\n",
+          "mv kibana-3.0.1 //usr/share/kibana\n",
+	  "chown -R root.www-data /usr/share/kibana/*\n",
+          "cat > /etc/apache2/sites-available/kibana.conf <<EOF\n",
+          "ProxyPass /elasticsearch http://", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, ":9200\n",
+          "ProxyPassReverse /elasticsearch http://", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, ":9200\n",
+          "Alias /kibana /usr/share/kibana\n",
+          "<Directory /usr/share/kibana>\n",
+          "  AllowOverride Options\n",
+          "</Directory>\n",
+          "EOF\n",
+          "a2enmod proxy\n",
+          "a2enmod proxy_http\n",
+          "a2ensite kibana\n",
+          "service apache2 restart\n"
+        ]]}}
+      }
+    }
+  },
+
+  "Outputs" : {
+    "WebsiteURL" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "WebServer", "PublicIp" ]}, "/wordpress"]] },
+      "Description" : "URL for Wordpress wiki"
+    }
+  }
+}
