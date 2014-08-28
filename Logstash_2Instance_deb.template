@@ -78,7 +78,8 @@
           "config" : {
             "packages" : {
               "apt" : {
-                 "apache2" : []
+                 "apache2" : [],
+                 "openjdk-7-jre-headless" : []
              }
             },
             "services" : {
@@ -116,7 +117,15 @@
           "a2enmod proxy\n",
           "a2enmod proxy_http\n",
           "a2ensite kibana\n",
-          "service apache2 restart\n"
+          "service apache2 restart\n",
+          "wget https://download.elasticsearch.org/logstash/logstash/packages/debian/logstash_1.4.2-1-2c0f5a1_all.deb",
+          "dpkg -i logstash_1.4.2-1-2c0f5a1_all.deb",
+          "cd /etc/logstash/conf.d/",
+          "wget ",
+          "cd /etc/logstash/patterns/",
+          "wget https://raw.githubusercontent.com/elasticsearch/logstash/master/patterns/grok-patterns",
+          "echo \"", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, " elas\" >> /etc/hosts",
+          "service logstash start"
         ]]}}
       }
     }
@@ -124,8 +133,8 @@
 
   "Outputs" : {
     "WebsiteURL" : {
-      "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "WebServer", "PublicIp" ]}, "/wordpress"]] },
-      "Description" : "URL for Wordpress wiki"
+      "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "WebServer", "PublicIp" ]}, "/kibana"]] },
+      "Description" : "URL for logstash"
     }
   }
 }
