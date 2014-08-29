@@ -121,7 +121,7 @@
           "wget https://download.elasticsearch.org/logstash/logstash/packages/debian/logstash_1.4.2-1-2c0f5a1_all.deb",
           "dpkg -i logstash_1.4.2-1-2c0f5a1_all.deb",
           "cd /etc/logstash/conf.d/",
-          "wget ",
+          "wget https://raw.githubusercontent.com/adesaegher/heat-test/master/logstash.conf",
           "cd /etc/logstash/patterns/",
           "wget https://raw.githubusercontent.com/elasticsearch/logstash/master/patterns/grok-patterns",
           "echo \"", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, " elas\" >> /etc/hosts",
