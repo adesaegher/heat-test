@@ -96,4 +96,6 @@ AUDITLOGLEVEL ([C|c]ritical|CRITICAL[A|a]udit|AUDIT|[D|d]ebug|DEBUG|[N|n]otice|N
 RSYSLOG <%{POSINT:syslog_pri}>%{TIMESTAMP_ISO8601:timestamp} 
 (?:%{SYSLOGFACILITY} )?%{SYSLOGHOST:logsource} %{SYSLOGPROG}: 
 %{GREEDYDATA:message} 
+# Openstack
+JAVACLASS (?:[a-zA-Z$_][a-zA-Z$_0-9]*\.)*[a-zA-Z$_][a-zA-Z$_0-9]*
 OPENSTACK %{MONTH}+ %{MONTHDAY} %{TIME} %{SYSLOGHOST:logsource} %{TIMESTAMP_ISO8601} %{POSINT:pid} %{AUDITLEVEL:auditlevel} %{JAVACLASS:syslog_program} \[.*\] %{GREEDYDATA:syslog_message}
