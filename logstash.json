@@ -211,7 +211,7 @@
             "syslog_hostname",
             "syslog_program",
             "auditlevel",
-            "syslog_message"
+            "message"
           ],
           "localTime": true,
           "timeField": "@timestamp",
