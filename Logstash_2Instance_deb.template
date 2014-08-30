@@ -123,8 +123,9 @@
           "dpkg -i logstash_1.4.2-1-2c0f5a1_all.deb\n",
           "cd /etc/logstash/conf.d/\n",
           "wget https://raw.githubusercontent.com/adesaegher/heat-test/master/logstash.conf\n",
+          "mkdir /etc/logstash/patterns\n",
           "cd /etc/logstash/patterns/\n",
-          "wget https://raw.githubusercontent.com/elasticsearch/logstash/master/patterns/grok-patterns\n",
+          "wget https://raw.githubusercontent.com/adesaegher/heat-test/master/grok-patterns\n",
           "echo \"", { "Fn::GetAtt" : [ "ElasticSearch", "PublicIp" ]}, " elas\" >> /etc/hosts\n",
           "service logstash start\n"
         ]]}}
