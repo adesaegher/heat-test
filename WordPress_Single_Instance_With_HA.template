@@ -61,10 +61,10 @@
       "ConstraintDescription" : "must contain only alphanumeric characters."
     },
     "LinuxDistribution": {
-      "Default": "F17",
+      "Default": "CentOS-7",
       "Description" : "Distribution of choice",
       "Type": "String",
-      "AllowedValues" : [ "F17" ]
+      "AllowedValues" : [ "CentOS-7" ]
     },
     "HupPollInterval": {
       "Default": "1",
@@ -82,7 +82,7 @@
       "m1.xlarge"   : { "Arch" : "64" }
     },
     "DistroArch2AMI": {
-      "F17"      : { "32" : "F17-i386-cfntools", "64" : "F17-x86_64-cfntools" }
+      "CentOS-7"      : { "32" : "CentOS-7-x86_64-cfntools-updated", "64" : "CentOS-7-x86_64-cfntools-updated" }
     }
   },
 
