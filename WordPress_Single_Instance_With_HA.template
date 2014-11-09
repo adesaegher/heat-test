@@ -82,7 +82,7 @@
       "m1.xlarge"   : { "Arch" : "64" }
     },
     "DistroArch2AMI": {
-      "CentOS-7"      : { "32" : "CentOS-7-x86_64-cfntools-updated", "64" : "CentOS-7-x86_64-cfntools-updated" }
+      "CentOS-7"      : { "32" : "CentOS-7-x86_64-cfntools-boto2.12.0", "64" : "CentOS-7-x86_64-cfntools-boto2.12.0" }
     }
   },
 
