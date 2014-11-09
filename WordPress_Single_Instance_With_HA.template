@@ -207,7 +207,7 @@
             },
             "services" : {
               "systemd" : {
-                "mysqld"   : { "enabled" : "true", "ensureRunning" : "true" },
+                "mariadb"   : { "enabled" : "true", "ensureRunning" : "true" },
                 "httpd"    : { "enabled" : "true", "ensureRunning" : "true" },
                 "crond"    : { "enabled" : "true", "ensureRunning" : "true" }
               }
