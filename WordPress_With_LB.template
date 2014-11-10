@@ -61,10 +61,10 @@
       "ConstraintDescription": "must contain only alphanumeric characters."
     },
     "LinuxDistribution": {
-      "Default": "F17",
+      "Default": "CentOS",
       "Description": "Distribution of choice",
       "Type": "String",
-      "AllowedValues": [ "F17" ]
+      "AllowedValues": [ "CentOS" ]
     }
   },
 
@@ -85,7 +85,7 @@
     "DatabaseServer": {
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
-        "TemplateURL": "https://raw.github.com/openstack/heat-templates/master/cfn/F17/MySQL_Single_Instance.template",
+        "TemplateURL": "https://raw.githubusercontent.com/adesaegher/heat-test/master/MySQL_Single_Instance.template",
         "Parameters": {
           "KeyName"          : { "Ref": "KeyName" },
           "InstanceType"     : { "Ref": "InstanceType" },
