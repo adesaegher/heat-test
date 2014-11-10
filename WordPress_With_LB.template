@@ -147,8 +147,8 @@
       "type": "HTTP", 
       "timeout": 10 
        } 
-     }
-     }, 
+     },
+     
    "ELB": { 
     "Type": "OS::Neutron::LoadBalancer", 
     "Properties": { 
