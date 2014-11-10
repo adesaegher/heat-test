@@ -138,23 +138,52 @@
       }
     },
 
-    "LoadBalancer" : {
-      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
-      "Properties" : {
-        "AvailabilityZones" : { "Fn::GetAZs" : "" },
-        "Instances" : [{"Ref": "WikiServerOne"}],
-        "Listeners" : [ {
-          "LoadBalancerPort" : "80",
-          "InstancePort" : "80",
-          "Protocol" : "HTTP"
-        }]
-      }
-    }
+{ 
+   "AWSTemplateFormatVersion": "2010-09-09", 
+   "Description": "Sample webserver config", 
+   "Resources": { 
+     "LBMonitor": { 
+       "Type": "OS::Neutron::HealthMonitor", 
+       "Properties": { 
+         "delay": 3, 
+         "max_retries": 5, 
+         "url_path": "/_", 
+         "type": "HTTP", 
+         "timeout": 10 
+       } 
+     }
+     }, 
+     "ELB": { 
+       "Type": "OS::Neutron::LoadBalancer", 
+       "Properties": { 
+         "protocol_port": "80", 
+         "pool_id": { "Ref": "LBPool" } 
+       } 
+     }, 
+     "LBPool": { 
+       "Type": "OS::Neutron::Pool", 
+       "Properties": { 
+         "lb_method": "ROUND_ROBIN", 
+         "protocol": "HTTP", 
+         "description": "Test Pool", 
+         "subnet_id": "mumbleuuid", 
+         "vip": { 
+           "protocol_port": "80", 
+           "connection_limit": 1000, 
+           "description": "Test", 
+           "name": "Test" 
+         }, 
+         "monitors": [ { "Ref": "LBMonitor" } ], 
+         "name": "test" 
+       } 
+     }
+   } 
+
   },
 
   "Outputs": {
     "WebsiteURL": {
-      "Value": { "Fn::Join": ["", ["http://", { "Fn::GetAtt": [ "LoadBalancer", "DNSName" ]}, "/wordpress"]] },
+      "Value": { "Fn::Join": ["", ["http://wordpress"]] },
       "Description": "URL for Wordpress wiki"
     }
   }
