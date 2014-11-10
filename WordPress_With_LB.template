@@ -162,7 +162,7 @@
      "lb_method": "ROUND_ROBIN", 
      "protocol": "HTTP", 
      "description": "Test Pool", 
-     "subnet_id": ", { "Fn::GetAtt" : [ "WikiServerOne", "private_subnet" ]}, ", 
+     "subnet_id": "77d1f47d-6d1c-4f4f-9e8d-ec3230676964", 
      "vip": { 
        "protocol_port": "80", 
        "connection_limit": 1000, 
