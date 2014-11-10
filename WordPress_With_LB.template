@@ -154,7 +154,7 @@
     "Properties": { 
      "protocol_port": "80", 
      "pool_id": { "Ref": "LBPool" },
-     "members": [", { "Fn::GetAtt": [ "WikiServerOne", "Outputs.PublicIp" ]}, "] 
+     "members": ", { "Fn::GetAtt": [ "WikiServerOne", "Outputs.PublicIp" ]}, "
     } 
     }, 
    "LBPool": { 
