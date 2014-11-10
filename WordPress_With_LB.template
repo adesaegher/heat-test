@@ -141,7 +141,7 @@
     "LoadBalancer" : {
       "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties" : {
-         "ImageId": { "Fn::FindInMap": [ "DistroArch2AMI", { "Ref": "LinuxDistribution" },
+        "ImageId": { "Fn::FindInMap": [ "DistroArch2AMI", { "Ref": "LinuxDistribution" },
                           { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ] },
         "InstanceType"   : { "Ref": "InstanceType" },
         "KeyName"        : { "Ref": "KeyName" },
