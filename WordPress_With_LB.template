@@ -176,7 +176,7 @@
 
   "Outputs": {
     "WebsiteURL": {
-      "Value": { "Fn::Join": ["", ["http://wordpress"]] },
+      "Value": "test",
       "Description": "URL for Wordpress wiki"
     }
   }
