@@ -138,47 +138,40 @@
       }
     },
 
-{ 
-   "AWSTemplateFormatVersion": "2010-09-09", 
-   "Description": "Sample webserver config", 
-   "Resources": { 
-     "LBMonitor": { 
-       "Type": "OS::Neutron::HealthMonitor", 
-       "Properties": { 
-         "delay": 3, 
-         "max_retries": 5, 
-         "url_path": "/_", 
-         "type": "HTTP", 
-         "timeout": 10 
+   "LBMonitor": { 
+    "Type": "OS::Neutron::HealthMonitor", 
+    "Properties": { 
+      "delay": 3, 
+      "max_retries": 5, 
+      "url_path": "/_", 
+      "type": "HTTP", 
+      "timeout": 10 
        } 
      }
      }, 
-     "ELB": { 
-       "Type": "OS::Neutron::LoadBalancer", 
-       "Properties": { 
-         "protocol_port": "80", 
-         "pool_id": { "Ref": "LBPool" } 
-       } 
+   "ELB": { 
+    "Type": "OS::Neutron::LoadBalancer", 
+    "Properties": { 
+     "protocol_port": "80", 
+     "pool_id": { "Ref": "LBPool" } 
+    } 
+  }, 
+   "LBPool": { 
+    "Type": "OS::Neutron::Pool", 
+    "Properties": { 
+     "lb_method": "ROUND_ROBIN", 
+     "protocol": "HTTP", 
+     "description": "Test Pool", 
+     "subnet_id": "mumbleuuid", 
+     "vip": { 
+       "protocol_port": "80", 
+       "connection_limit": 1000, 
+       "description": "Test", 
+       "name": "Test" 
      }, 
-     "LBPool": { 
-       "Type": "OS::Neutron::Pool", 
-       "Properties": { 
-         "lb_method": "ROUND_ROBIN", 
-         "protocol": "HTTP", 
-         "description": "Test Pool", 
-         "subnet_id": "mumbleuuid", 
-         "vip": { 
-           "protocol_port": "80", 
-           "connection_limit": 1000, 
-           "description": "Test", 
-           "name": "Test" 
-         }, 
-         "monitors": [ { "Ref": "LBMonitor" } ], 
-         "name": "test" 
-       } 
-     }
-   } 
-
+     "monitors": [ { "Ref": "LBMonitor" } ], 
+     "name": "test" 
+    } 
   },
 
   "Outputs": {
