@@ -173,6 +173,7 @@
      "name": "test" 
     } 
   },
+  },
 
   "Outputs": {
     "WebsiteURL": {
@@ -181,4 +182,4 @@
     }
   }
 }
-}
+
