@@ -155,7 +155,7 @@
      "protocol_port": "80", 
      "pool_id": { "Ref": "LBPool" } 
     } 
-  }, 
+    }, 
    "LBPool": { 
     "Type": "OS::Neutron::Pool", 
     "Properties": { 
