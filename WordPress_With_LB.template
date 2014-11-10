@@ -177,7 +177,7 @@
    "lb_floating":{
     "Type": "OS::Neutron::FloatingIP",
     "Properties":{
-      "floating_network_id": "{ "Fn::GetParam": "external_network_id"}",
+      "floating_network_id": "8cd08546-dcd7-4c8b-9ca7-b7eb4dedbfcd",
       "port_id": { "Fn::GetAtt": [ "LBPool", "vip.port_id" ]}
     }
   }
