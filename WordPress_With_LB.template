@@ -153,10 +153,16 @@
     "Type": "OS::Neutron::LoadBalancer", 
     "Properties": { 
      "protocol_port": "80", 
-     "pool_id": { "Ref": "LBPool" },
-     "members": [{ "Fn::GetAtt": [ "WikiServerOne", "PublicIp" ]},]
+     "pool_id": { "Ref": "LBPool" }
     } 
-    }, 
+    },
+    ELBmember:
+    type: OS::Neutron::PoolMember
+    properties:
+      "pool_id": { "Ref": "LBPool" }
+      "address": { "Fn::GetAtt": [ "DatabaseServer", "Outputs.PublicIp" ]},
+      "protocol_port": "80"
+    },
    "LBPool": { 
     "Type": "OS::Neutron::Pool", 
     "Properties": { 
