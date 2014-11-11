@@ -131,7 +131,7 @@
           "sed --in-place --e s/database_name_here/", { "Ref": "DBName" },
           "/ --e s/username_here/", { "Ref": "DBUsername" },
           "/ --e s/password_here/", { "Ref": "DBPassword" },
-          "/ --e s/localhost/", { "Fn::GetAtt": [ "DatabaseServer", "PublicIp" ]},
+          "/ --e s/localhost/", { "Fn::GetAtt": [ "DatabaseServer", "Outputs.PublicIp" ]},
           "/ /usr/share/wordpress/wp-config.php\n",
           "systemctl restart httpd.service\n"
         ]]}}
@@ -160,7 +160,7 @@
     "Type": "OS::Neutron::PoolMember",
     "Properties": {
       "pool_id": { "Ref": "LBPool" },
-      "address": { "Fn::GetAtt": [ "DatabaseServer", "PublicIp" ]},
+      "address": { "Fn::GetAtt": [ "WikiServerOne", "PublicIp" ]},
       "protocol_port": "80"
     }
     },
