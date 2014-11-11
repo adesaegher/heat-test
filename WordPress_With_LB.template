@@ -138,17 +138,6 @@
       }
     },
 
-   "LBMonitor": { 
-    "Type": "OS::Neutron::HealthMonitor", 
-    "Properties": { 
-      "delay": 3, 
-      "max_retries": 5, 
-      "url_path": "/_", 
-      "type": "HTTP", 
-      "timeout": 10 
-       } 
-     },
-     
    "ELB": { 
     "Type": "OS::Neutron::LoadBalancer", 
     "Properties": { 
