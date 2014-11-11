@@ -166,7 +166,6 @@
        "description": "Test", 
        "name": "Test" 
      }, 
-     "monitors": [ { "Ref": "LBMonitor" } ], 
      "name": "test" 
     } 
   }
