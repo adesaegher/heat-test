@@ -159,7 +159,7 @@
     "ELBmember": {
     "Type": "OS::Neutron::PoolMember",
     "Properties": {
-      "pool_id": { "Ref": "LBPool" }
+      "pool_id": { "Ref": "LBPool" },
       "address": { "Fn::GetAtt": [ "DatabaseServer", "Outputs.PublicIp" ]},
       "protocol_port": "80"
     }
