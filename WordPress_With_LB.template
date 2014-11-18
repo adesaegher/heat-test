@@ -132,7 +132,7 @@
           "/ --e s/username_here/", { "Ref": "DBUsername" },
           "/ --e s/password_here/", { "Ref": "DBPassword" },
           "/ --e s/localhost/", { "Fn::GetAtt": [ "DatabaseServer", "Outputs.PublicIp" ]},
-          "/ /usr/share/wordpress/wp-config.php\n",
+          "/ /etc/wordpress/wp-config.php\n",
           "systemctl restart httpd.service\n"
         ]]}}
       }
