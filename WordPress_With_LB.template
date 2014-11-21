@@ -133,6 +133,7 @@
           "/ --e s/password_here/", { "Ref": "DBPassword" },
           "/ --e s/localhost/", { "Fn::GetAtt": [ "DatabaseServer", "Outputs.PublicIp" ]},
           "/ /etc/wordpress/wp-config.php\n",
+          "setsebool httpd_can_network_connect=1\n",
           "systemctl restart httpd.service\n"
         ]]}}
       }
