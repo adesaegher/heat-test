@@ -170,6 +170,13 @@
      "name": "test" 
     } 
   }
+   "lb_floating":{
+    "Type": "OS::Neutron::FloatingIP",
+    "Properties":{
+      "floating_network_id": { "Fn::GetParam": "external_network_id"},
+      "port_id": { "Fn::GetAtt": [ "pool", "vip", "port_id" ]}
+    }
+  }
   },
 
   "Outputs": {
