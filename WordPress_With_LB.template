@@ -169,7 +169,7 @@
      }, 
      "name": "test" 
     } 
-  }
+  },
    "lb_floating":{
     "Type": "OS::Neutron::FloatingIP",
     "Properties":{
