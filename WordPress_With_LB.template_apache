@@ -100,7 +100,7 @@
     
     "ApacheFrontal": {
       "Type": "AWS::EC2::Instance",
-      "DependsOn" : "LBPool",
+      "DependsOn" : "WikiServerOne",
       "Metadata": {
         "AWS::CloudFormation::Init": {
           "config": {
