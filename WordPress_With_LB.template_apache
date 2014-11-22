@@ -214,7 +214,7 @@
 
   "Outputs": {
      "pool_ip_address": {
-      "Value": { "Fn::Select": [ "address", { get_attr: [ LBPool, vip ] } ]},
+      "Value": { "Fn::GetAtt" : [ "LBPool", "address" ]},
       "Description": "The IP address of the load balancing pool"
     },
     "WebsiteURL": {
