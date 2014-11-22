@@ -213,6 +213,10 @@
   },
 
   "Outputs": {
+     "pool_ip_address": {
+      "Value": {get_attr: [LBPool, vip, address]},
+      "Description": "The IP address of the load balancing pool"
+    },
     "WebsiteURL": {
       "Value": "test",
       "Description": "URL for Wordpress wiki"
