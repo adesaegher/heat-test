@@ -126,8 +126,8 @@
           "#!/bin/bash -v\n",
           "/opt/aws/bin/cfn-init\n",
           "cat > /etc/apache2/sites-available/wordpress.conf <<EOF\n",
-          "ProxyPass /wordpress http://", { "Fn::Select": [ "PublicIp", { get_attr: [ LBPool, vip ] } ]}, ":8090\n",
-          "ProxyPassReverse /wordpress http://", { "Fn::Select": [ "PublicIp", { get_attr: [ LBPool, vip ] } ]}, ":8090\n",
+          "ProxyPass /wordpress http://", { "Fn::Select": [ "address", { get_attr: [ LBPool, vip ] } ]}, ":8090\n",
+          "ProxyPassReverse /wordpress http://", { "Fn::Select": [ "address", { get_attr: [ LBPool, vip ] } ]}, ":8090\n",
           "EOF\n",
           "a2enmod proxy\n",
           "a2enmod proxy_http\n",
@@ -214,7 +214,7 @@
 
   "Outputs": {
      "pool_ip_address": {
-      "Value": {get_attr: [LBPool, vip, address]},
+      "Value": { "Fn::Select": [ "address", { get_attr: [ LBPool, vip ] } ]},
       "Description": "The IP address of the load balancing pool"
     },
     "WebsiteURL": {
