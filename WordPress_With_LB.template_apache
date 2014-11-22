@@ -97,7 +97,47 @@
         }
       }
     },
-
+    
+    "ApacheFrontal": {
+      "Type": "AWS::EC2::Instance",
+      "DependsOn" : "LBPool",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "packages": {
+              "yum": {
+                "httpd"        : []
+              }
+            },
+            "services": {
+              "systemd": {
+                "httpd"    : { "enabled": "true", "ensureRunning": "true" }
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId": { "Fn::FindInMap": [ "DistroArch2AMI", { "Ref": "LinuxDistribution" },
+                          { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref": "InstanceType" },
+        "KeyName"        : { "Ref": "KeyName" },
+        "UserData"       : { "Fn::Base64": { "Fn::Join": ["", [
+          "#!/bin/bash -v\n",
+          "/opt/aws/bin/cfn-init\n",
+          "cat > /etc/apache2/sites-available/wordpress.conf <<EOF\n",
+          "ProxyPass /wordpress http://", { "Fn::GetAtt" : [ "LBPool", "PublicIp" ]}, ":8090\n",
+          "ProxyPassReverse /wordpress http://", { "Fn::GetAtt" : [ "LBPool", "PublicIp" ]}, ":8090\n",
+          "EOF\n",
+          "a2enmod proxy\n",
+          "a2enmod proxy_http\n",
+          "a2ensite wordpress\n",
+          "setsebool httpd_can_network_connect=1\n",
+          "systemctl restart httpd.service\n"
+        ]]}}
+      }
+    },
+    
     "WikiServerOne": {
       "Type": "AWS::EC2::Instance",
       "DependsOn" : "DatabaseServer",
