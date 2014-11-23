@@ -126,8 +126,8 @@
           "#!/bin/bash -v\n",
           "/opt/aws/bin/cfn-init\n",
           "cat > /etc/apache2/sites-available/wordpress.conf <<EOF\n",
-          "ProxyPass /wordpress http://", { "Fn::Select": [ "address", { get_attr: [ LBPool, vip ] } ]}, ":8090\n",
-          "ProxyPassReverse /wordpress http://", { "Fn::Select": [ "address", { get_attr: [ LBPool, vip ] } ]}, ":8090\n",
+          "ProxyPass /wordpress http://", { "Fn::GetAtt" : [ "lb_vip_floating_ip", "floating_ip_address" ]}, ":8090\n",
+          "ProxyPassReverse /wordpress http://", { "Fn::GetAtt" : [ "lb_vip_floating_ip", "floating_ip_address" ]}, ":8090\n",
           "EOF\n",
           "a2enmod proxy\n",
           "a2enmod proxy_http\n",
@@ -178,7 +178,27 @@
         ]]}}
       }
     },
-
+   "lb_vip_port": { 
+    "Type": "OS::Neutron::Port", 
+    "Properties": { 
+     "name": "lb_vip_port", 
+     "fixed_ips": [],
+     "admin_state_up": "True"
+    } 
+    },
+   "lb_vip_floating_ip": { 
+    "Type": "OS::Neutron::FloatingIP", 
+    "Properties": { 
+     "port_id": { "Ref": "lb_vip_port" }
+    } 
+    },
+   "lb_pool_vip": { 
+    "Type": "OS::Neutron::FloatingIPAssociation", 
+    "Properties": { 
+     "floatingip_id": { "Ref": "lb_vip_floating_ip" },
+     "port_id": { 'Fn::Select': ['port_id', {get_attr: [LBPool, vip]}]}
+    } 
+    },
    "ELB": { 
     "Type": "OS::Neutron::LoadBalancer", 
     "Properties": { 
@@ -214,7 +234,7 @@
 
   "Outputs": {
      "pool_ip_address": {
-      "Value": { "Fn::GetAtt" : [ "LBPool", "address" ]},
+      "Value": { "Fn::GetAtt" : [ "lb_vip_floating_ip", "floating_ip_address" ]},
       "Description": "The IP address of the load balancing pool"
     },
     "WebsiteURL": {
