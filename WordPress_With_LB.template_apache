@@ -198,7 +198,7 @@
      "Type": "OS::Neutron::FloatingIPAssociation",
      "Properties": {
       "floatingip_id": { "Ref": "lb_vip_floating_ip" },
-      "port_id": { "Fn::Select" : [ "port_id", { get_attr: [ LBPool , vip ] } ] }
+      "port_id": { "Fn::Select" : [ "port_id", { "Fn::GetAtt": [ "LBPool", "vip" ]} ] }
      }
      },
    "ELB": { 
