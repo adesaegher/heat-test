@@ -178,27 +178,27 @@
         ]]}}
       }
     },
-   "lb_vip_port": { 
-    "Type": "OS::Neutron::Port", 
-    "Properties": { 
-     "name": "lb_vip_port", 
-     "fixed_ips": [],
-     "admin_state_up": "True"
-    } 
-    },
-   "lb_vip_floating_ip": { 
-    "Type": "OS::Neutron::FloatingIP", 
-    "Properties": { 
-     "port_id": { "Ref": "lb_vip_port" }
-    } 
-    },
-   "lb_pool_vip": { 
-    "Type": "OS::Neutron::FloatingIPAssociation", 
-    "Properties": { 
-     "floatingip_id": { "Ref": "lb_vip_floating_ip" },
-     "port_id": { 'Fn::Select': ['port_id', {get_attr: [LBPool, vip]}]}
-    } 
-    },
+    "lb_vip_port": {
+     "Type": "OS::Neutron::Port",
+     "Properties": {
+      "name": "lb_vip_port",
+      "fixed_ips": [],
+      "admin_state_up": "True"
+     }
+    },
+    "lb_vip_floating_ip": {
+     "Type": "OS::Neutron::FloatingIP",
+     "Properties": {
+      "port_id": { "Ref": "lb_vip_port" }
+     }
+     },
+    "lb_pool_vip": {
+     "Type": "OS::Neutron::FloatingIPAssociation",
+     "Properties": {
+      "floatingip_id": { "Ref": "lb_vip_floating_ip" },
+      "port_id": { 'Fn::Select': ['port_id', {get_attr: [LBPool, vip]}]}
+     }
+     },
    "ELB": { 
     "Type": "OS::Neutron::LoadBalancer", 
     "Properties": { 
