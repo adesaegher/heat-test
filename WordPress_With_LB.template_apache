@@ -181,6 +181,7 @@
     "lb_vip_port": {
      "Type": "OS::Neutron::Port",
      "Properties": {
+      "network_id": {},
       "name": "lb_vip_port",
       "fixed_ips": [],
       "admin_state_up": "True"
