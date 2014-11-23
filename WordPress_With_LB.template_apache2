@@ -237,9 +237,9 @@
   },
 
   "Outputs": {
-     "lb_vip_floating_ip": {
-      "Value": { "Fn::GetAtt" : [ "lb_vip_floating_ip", "floating_ip_address" ]},
-      "Description": "The IP address of the load balancing pool"
+     "floating_ip": {
+      "Value": { "Fn::GetAtt" : [ "floating_ip", "floating_ip_address" ]},
+      "Description": "The IP address of the frontal"
     },
     "pool_ip_address": {
       "Value": { "Fn::Select" : [ "address", { "Fn::GetAtt": [ "LBPool", "vip" ]} ] },
