@@ -178,29 +178,18 @@
         ]]}}
       }
     },
-    "port": {
-     "Type": "OS::Neutron::Port",
-     "Properties": {
-      "network_id": "cda08d59-450e-4486-b318-4ba9a4e6eaf7",
-      "name": "port",
-      "fixed_ips": [],
-      "admin_state_up": "True"
-     }
+     "WebServerIPAddress" : {
+      "Type" : "AWS::EC2::EIP"
+      },
+
+     "WebServerIPAssoc" : {
+      "Type" : "AWS::EC2::EIPAssociation",
+      "Properties" : {
+        "InstanceId" : { "Ref" : "ApacheFrontal" },
+        "EIP" : { "Ref" : "WebServerIPAddress" }
+      }
     },
-    "floating_ip": {
-     "Type": "OS::Neutron::FloatingIP",
-     "Properties": {
-      "floating_network_id": "8cd08546-dcd7-4c8b-9ca7-b7eb4dedbfcd",
-      "port_id": { "Ref": "port" }
-     }
-     },
-    "apache-ip-ass": {
-     "Type": "OS::Neutron::FloatingIPAssociation",
-     "Properties": {
-      "floatingip_id": { "Ref": "floating_ip" },
-      "port_id": { "Fn::GetAtt": [ "ApacheFrontal", "PublicIp" ]}
-     }
-     },
+
      
    "ELB": { 
     "Type": "OS::Neutron::LoadBalancer", 
@@ -237,8 +226,8 @@
   },
 
   "Outputs": {
-     "floating_ip": {
-      "Value": { "Fn::GetAtt" : [ "floating_ip", "floating_ip_address" ]},
+     "EIP": {
+      "Value": { "Fn::GetAtt" : [ "ApacheFrontal", "PublicIp" ]},
       "Description": "The IP address of the frontal"
     },
     "pool_ip_address": {
