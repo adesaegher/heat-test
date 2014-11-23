@@ -190,6 +190,7 @@
     "lb_vip_floating_ip": {
      "Type": "OS::Neutron::FloatingIP",
      "Properties": {
+      "floating_network_id": "8cd08546-dcd7-4c8b-9ca7-b7eb4dedbfcd",
       "port_id": { "Ref": "lb_vip_port" }
      }
      },
