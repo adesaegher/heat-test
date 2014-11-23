@@ -227,7 +227,7 @@
 
   "Outputs": {
      "EIP": {
-      "Value": { "Fn::GetAtt" : [ "ApacheFrontal", "PublicIp" ]},
+      "Value": { "Ref" : "WebServerIPAddress" },
       "Description": "The IP address of the frontal"
     },
     "pool_ip_address": {
