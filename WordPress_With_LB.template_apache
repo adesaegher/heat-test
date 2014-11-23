@@ -100,7 +100,7 @@
     
     "ApacheFrontal": {
       "Type": "AWS::EC2::Instance",
-      "DependsOn" : "WikiServerOne",
+      "DependsOn" : "LBPool",
       "Metadata": {
         "AWS::CloudFormation::Init": {
           "config": {
@@ -217,6 +217,7 @@
     }
     },
    "LBPool": { 
+    "DependsOn" : "WikiServerOne",
     "Type": "OS::Neutron::Pool", 
     "Properties": { 
      "lb_method": "ROUND_ROBIN", 
@@ -235,13 +236,13 @@
   },
 
   "Outputs": {
-     "pool_ip_address": {
+     "lb_vip_floating_ip": {
       "Value": { "Fn::GetAtt" : [ "lb_vip_floating_ip", "floating_ip_address" ]},
       "Description": "The IP address of the load balancing pool"
     },
-    "WebsiteURL": {
-      "Value": "test",
-      "Description": "URL for Wordpress wiki"
+    "pool_ip_address": {
+      "Value": { "Fn::Select" : [ "address", { "Fn::GetAtt": [ "LBPool", "vip" ]} ] },
+      "Description": "The IP address of the load balancing pool"
     }
   }
 }
