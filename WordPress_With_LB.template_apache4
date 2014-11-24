@@ -179,6 +179,48 @@
         ]]}}
       }
     },
+
+    "WikiServerTow": {
+      "Type": "AWS::EC2::Instance",
+      "DependsOn" : "DatabaseServer",
+      "Metadata": {
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "packages": {
+              "yum": {
+                "httpd"        : [],
+                "wordpress"    : []
+              }
+            },
+            "services": {
+              "systemd": {
+                "httpd"    : { "enabled": "true", "ensureRunning": "true" }
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId": { "Fn::FindInMap": [ "DistroArch2AMI", { "Ref": "LinuxDistribution" },
+                          { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref": "InstanceType" },
+        "KeyName"        : { "Ref": "KeyName" },
+        "UserData"       : { "Fn::Base64": { "Fn::Join": ["", [
+          "#!/bin/bash -v\n",
+          "/opt/aws/bin/cfn-init\n",
+          "sed -i \"/Deny from All/d\" /etc/httpd/conf.d/wordpress.conf\n",
+          "sed -i \"s/Require local/Require all granted/\" /etc/httpd/conf.d/wordpress.conf\n",
+          "sed --in-place --e s/database_name_here/", { "Ref": "DBName" },
+          "/ --e s/username_here/", { "Ref": "DBUsername" },
+          "/ --e s/password_here/", { "Ref": "DBPassword" },
+          "/ --e s/localhost/", { "Fn::GetAtt": [ "DatabaseServer", "Outputs.PublicIp" ]},
+          "/ /etc/wordpress/wp-config.php\n",
+          "setsebool httpd_can_network_connect=1\n",
+          "systemctl restart httpd.service\n"
+        ]]}}
+      }
+    },
+
      "WebServerIPAddress" : {
       "Type" : "AWS::EC2::EIP"
       },
@@ -199,11 +241,19 @@
      "pool_id": { "Ref": "LBPool" }
     } 
     },
-    "ELBmember": {
+    "ELBmember1": {
     "Type": "OS::Neutron::PoolMember",
     "Properties": {
       "pool_id": { "Ref": "LBPool" },
       "address": { "Fn::GetAtt": [ "WikiServerOne", "PublicIp" ]},
+      "protocol_port": "80"
+    }
+    },
+    "ELBmember2": {
+    "Type": "OS::Neutron::PoolMember",
+    "Properties": {
+      "pool_id": { "Ref": "LBPool" },
+      "address": { "Fn::GetAtt": [ "WikiServerTow", "PublicIp" ]},
       "protocol_port": "80"
     }
     },
