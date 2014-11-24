@@ -180,7 +180,7 @@
       }
     },
 
-    "WikiServerTow": {
+    "WikiServerTwo": {
       "Type": "AWS::EC2::Instance",
       "DependsOn" : "DatabaseServer",
       "Metadata": {
@@ -221,15 +221,15 @@
       }
     },
 
-     "WebServerIPAddress" : {
+     "FrontalIPAddress" : {
       "Type" : "AWS::EC2::EIP"
       },
 
-     "WebServerIPAssoc" : {
+     "FrontalIPAssoc" : {
       "Type" : "AWS::EC2::EIPAssociation",
       "Properties" : {
         "InstanceId" : { "Ref" : "ApacheFrontal" },
-        "EIP" : { "Ref" : "WebServerIPAddress" }
+        "EIP" : { "Ref" : "FrontalIPAddress" }
       }
     },
 
@@ -253,7 +253,7 @@
     "Type": "OS::Neutron::PoolMember",
     "Properties": {
       "pool_id": { "Ref": "LBPool" },
-      "address": { "Fn::GetAtt": [ "WikiServerTow", "PublicIp" ]},
+      "address": { "Fn::GetAtt": [ "WikiServerTwo", "PublicIp" ]},
       "protocol_port": "80"
     }
     },
@@ -278,7 +278,7 @@
 
   "Outputs": {
      "EIP": {
-      "Value": { "Ref" : "WebServerIPAddress" },
+      "Value": { "Ref" : "FrontalIPAddress" },
       "Description": "The IP address of the frontal"
     },
     "pool_ip_address": {
