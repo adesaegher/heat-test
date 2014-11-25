@@ -224,15 +224,15 @@
       }
     },
     "app_config": {
-      "type": "OS::Heat::SoftwareConfig",
-      "properties": {
+      "Type": "OS::Heat::SoftwareConfig",
+      "Properties": {
         "group": "script",
         "config": "echo toto > /tmp/toto\necho titi >> /tmp/toto"
       }
     },
     "app_deployment": {
-      "type": "OS::Heat::SoftwareDeployment",
-      "properties": {
+      "Type": "OS::Heat::SoftwareDeployment",
+      "Properties": {
         "config": {
           "get_resource": "app_config"
         },
@@ -250,28 +250,13 @@
       "Description" : "URL for Wordpress wiki"
     },
     "stdout": {
-      "value": {
-        "get_attr": [
-          "app_deployment",
-          "deploy_stdout"
-        ]
-      }
+      "value": { "Fn::GetAtt" : [ "app_deployment", "deploy_stderr" ]}
     },
     "stderr": {
-      "value": {
-        "get_attr": [
-          "app_deployment",
-          "deploy_stderr"
-        ]
-      }
+      "value": { "Fn::GetAtt" : [ "app_deployment", "deploy_stderr" ]}
     },
     "status_code": {
-      "value": {
-        "get_attr": [
-          "app_deployment",
-          "deploy_status_code"
-        ]
-      }
+      "value": { "Fn::GetAtt" : [ "app_deployment", "deploy_status_code" ]}
     }
   }
 }
