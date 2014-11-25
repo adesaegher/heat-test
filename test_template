@@ -227,7 +227,7 @@
       "Type": "OS::Heat::SoftwareConfig",
       "Properties": {
         "group": "script",
-        "config": "#!/bin/sh\necho \"The two is bar\" > /tmp/two\n"
+        "config": "#!/bin/sh\necho toto > /tmp/two\n"
       }
     },
     "app_deployment": {
