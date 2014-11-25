@@ -250,7 +250,7 @@
       "Description" : "URL for Wordpress wiki"
     },
     "stdout": {
-      "value": { "Fn::GetAtt" : [ "app_deployment", "deploy_stderr" ]}
+      "value": { "Fn::GetAtt" : [ "app_deployment", "deploy_stdout" ]}
     },
     "stderr": {
       "value": { "Fn::GetAtt" : [ "app_deployment", "deploy_stderr" ]}
