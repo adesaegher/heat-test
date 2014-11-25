@@ -1,0 +1,56 @@
+heat_template_version: 2013-05-23
+
+description: Web Server Template
+
+parameters:
+  image:
+    default: CentOS-7-x86_64-cfntools-boto2.12.0
+    type: string
+    description: Image use to boot a server
+  
+  flavor:
+    default: m1.small
+    type: string
+    description: Flavor use to boot a server
+    
+  key_name:
+    default: toto 
+    type: string
+    description: keypair name use to boot a server
+
+resources:
+  web_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      config: |
+        #!/bin/bash
+        echo "toto" > /tmp/toto
+
+  web_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: web_config
+      server:
+        get_resource: web_server
+        
+  web_server:
+    type: OS::Nova::Server
+    properties:
+      name: "Web Server"
+      image: { get_param: image }
+      flavor: { get_param: flavor } 
+      key_name: { get_param: key_name } 
+      user_data_format: SOFTWARE_CONFIG 
+
+outputs:
+  stdout:
+    value:
+      get_attr: [web_deployment, deploy_stdout]
+  stderr:
+    value:
+      get_attr: [web_deployment, deploy_stderr]
+  status_code:
+    value:
+      get_attr: [web_deployment, deploy_status_code]
