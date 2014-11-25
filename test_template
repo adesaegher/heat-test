@@ -1,0 +1,277 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation Sample Template WordPress_Multi_Instance: WordPress is web software you can use to create a beautiful website or blog. This template installs two instances: one running a WordPress deployment and the other using a local MySQL database to store the data.",
+
+  "Parameters" : {
+
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String"
+    },
+
+    "InstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "m1.small",
+      "AllowedValues" : [ "m1.tiny", "m1.small", "m1.medium", "m1.large", "m1.xlarge" ],
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+
+    "DBName": {
+      "Default": "wordpress",
+      "Description" : "The WordPress database name",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBUsername": {
+      "Default": "admin",
+      "NoEcho": "true",
+      "Description" : "The WordPress database admin account username",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBPassword": {
+      "Default": "admin",
+      "NoEcho": "true",
+      "Description" : "The WordPress database admin account password",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    },
+
+    "DBRootPassword": {
+      "Default": "admin",
+      "NoEcho": "true",
+      "Description" : "Root password for MySQL",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    },
+    "LinuxDistribution": {
+      "Default": "CentOS-7",
+      "Description" : "Distribution of choice",
+      "Type": "String",
+      "AllowedValues" : [ "CentOS-7" ]
+    },
+    "HupPollInterval": {
+      "Default": "1",
+      "Description" : "Interval for cfn-hup",
+      "Type": "String"
+    }
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "m1.tiny"    : { "Arch" : "32" },
+      "m1.small"    : { "Arch" : "64" },
+      "m1.medium"    : { "Arch" : "64" },
+      "m1.large"   : { "Arch" : "64" },
+      "m1.xlarge"   : { "Arch" : "64" }
+    },
+    "DistroArch2AMI": {
+      "CentOS-7"      : { "32" : "CentOS-7-x86_64-cfntools-boto2.12.0", "64" : "CentOS-7-x86_64-cfntools-boto2.12.0" }
+    }
+  },
+
+  "Resources" : {
+    "CfnUser" : {
+      "Type" : "AWS::IAM::User"
+    },
+    "WebServerKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : {"Ref": "CfnUser"}
+      }
+    },
+    "WebServerRestartPolicy" : {
+      "Type" : "OS::Heat::HARestarter",
+      "Properties" : {
+        "InstanceId" : { "Ref" : "WikiDatabase" }
+      }
+    },
+    "HttpFailureAlarm": {
+     "Type": "AWS::CloudWatch::Alarm",
+     "Properties": {
+        "AlarmDescription": "Restart the WikiDatabase if httpd fails > 3 times in 10 minutes",
+        "MetricName": "ServiceFailure",
+        "Namespace": "system/linux",
+        "Statistic": "SampleCount",
+        "Period": "300",
+        "EvaluationPeriods": "1",
+        "Threshold": "2",
+        "AlarmActions": [ { "Ref": "WebServerRestartPolicy" } ],
+        "ComparisonOperator": "GreaterThanThreshold"
+      }
+    },
+    "WikiDatabase": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "files" : {
+              "/etc/cfn/cfn-credentials" : {
+                "content" : { "Fn::Join" : ["", [
+                  "AWSAccessKeyId=", { "Ref" : "WebServerKeys" }, "\n",
+                  "AWSSecretKey=", {"Fn::GetAtt": ["WebServerKeys",
+                                    "SecretAccessKey"]}, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackName" }, "\n",
+                  "credential-file=/etc/cfn/cfn-credentials\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n",
+                  "interval=", { "Ref" : "HupPollInterval" }, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/notify-on-httpd-restarted" : {
+                "content" : { "Fn::Join" : ["", [
+                "#!/bin/sh\n",
+                "/opt/aws/bin/cfn-push-stats --watch ",
+                { "Ref" : "HttpFailureAlarm" },
+                " --service-failure\n"
+                ]]},
+                "mode"    : "000700",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/tmp/cfn-hup-crontab.txt" : {
+                "content" : { "Fn::Join" : ["", [
+                "MAIL=\"\"\n",
+                "\n",
+                "* * * * * /opt/aws/bin/cfn-hup -f\n"
+                ]]},
+                "mode"    : "000600",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/tmp/setup.mysql" : {
+                "content" : { "Fn::Join" : ["", [
+                "CREATE DATABASE ", { "Ref" : "DBName" }, ";\n",
+                "GRANT ALL PRIVILEGES ON ", { "Ref" : "DBName" },
+                ".* TO '", { "Ref" : "DBUsername" }, "'@'localhost'\n",
+                "IDENTIFIED BY '", { "Ref" : "DBPassword" }, "';\n",
+                "FLUSH PRIVILEGES;\n",
+                "EXIT\n"
+                  ]]},
+                "mode"  : "000644",
+                "owner" : "root",
+                "group" : "root"
+              },
+
+              "/etc/cfn/hooks.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-http-restarted]\n",
+                  "triggers=service.restarted\n",
+                  "path=Resources.WikiDatabase.Metadata\n",
+                  "action=/etc/cfn/notify-on-httpd-restarted\n",
+                  "runas=root\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              }
+            },
+            "packages" : {
+              "yum" : {
+              }
+            },
+            "services" : {
+              "systemd" : {
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "DistroArch2AMI", { "Ref" : "LinuxDistribution" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref" : "InstanceType" },
+        "KeyName"        : { "Ref" : "KeyName" },
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" },
+          " -r WikiDatabase ",
+          " --access-key ", { "Ref" : "WebServerKeys" },
+          " --secret-key ", {"Fn::GetAtt": ["WebServerKeys", "SecretAccessKey"]},
+          " --region ", { "Ref" : "AWS::Region" },
+          " || error_exit 'Failed to run cfn-init'\n"
+        ]]}}
+      }
+    },
+    "app_config": {
+      "type": "OS::Heat::SoftwareConfig",
+      "properties": {
+        "group": "script",
+        "config": "echo toto > /tmp/toto\necho titi >> /tmp/toto"
+      }
+    },
+    "app_deployment": {
+      "type": "OS::Heat::SoftwareDeployment",
+      "properties": {
+        "config": {
+          "get_resource": "app_config"
+        },
+        "server": {
+          "get_resource": "WikiDatabase"
+        }
+      }
+    }
+
+  },
+
+  "Outputs" : {
+    "WebsiteURL" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "WikiDatabase", "PublicIp" ]}, "/wordpress"]] },
+      "Description" : "URL for Wordpress wiki"
+    },
+    "stdout": {
+      "value": {
+        "get_attr": [
+          "app_deployment",
+          "deploy_stdout"
+        ]
+      }
+    },
+    "stderr": {
+      "value": {
+        "get_attr": [
+          "app_deployment",
+          "deploy_stderr"
+        ]
+      }
+    },
+    "status_code": {
+      "value": {
+        "get_attr": [
+          "app_deployment",
+          "deploy_status_code"
+        ]
+      }
+    }
+  }
+}
