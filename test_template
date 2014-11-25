@@ -233,12 +233,8 @@
     "app_deployment": {
       "Type": "OS::Heat::SoftwareDeployment",
       "Properties": {
-        "config": {
-          "get_resource": "app_config"
-        },
-        "server": {
-          "get_resource": "WikiDatabase"
-        }
+        "config": { "Ref" : "app_config" },
+        "server": { "Ref" : "WikiDatabase" }
       }
     }
 
