@@ -19,6 +19,15 @@ parameters:
     description: keypair name use to boot a server
 
 resources:
+
+  one_init:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        write_files:
+        - path: /tmp/one
+          content: "The one is bar"
+
   web_config:
     type: OS::Heat::SoftwareConfig
     properties:
