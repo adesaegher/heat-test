@@ -26,7 +26,7 @@ resources:
       outputs:
       - name: result
       config:
-        get_file: ./example-script.sh
+        get_file: config-scripts/example-script.sh
 
   deployment:
     type: OS::Heat::SoftwareDeployment
