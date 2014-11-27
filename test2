@@ -25,7 +25,7 @@ resources:
       - name: bar
       outputs:
       - name: result
-      config:|
+      config: |
         #!/bin/sh -x
         echo "Writing to /tmp/$bar"
         echo $foo > /tmp/$bar
