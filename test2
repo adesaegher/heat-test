@@ -1,0 +1,80 @@
+heat_template_version: 2013-05-23
+parameters:
+  image:
+    default: CentOS-7-x86_64-cfntools-boto2.12.0
+    type: string
+    description: Image use to boot a server
+  
+  flavor:
+    default: m1.small
+    type: string
+    description: Flavor use to boot a server
+    
+  key_name:
+    default: toto 
+    type: string
+    description: keypair name use to boot a server
+
+  config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      inputs:
+      - name: foo
+      - name: bar
+      outputs:
+      - name: result
+      config:
+        get_file: example-script.sh
+
+  deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: config
+      server:
+        get_resource: server
+      input_values:
+        foo: fooooo
+        bar: baaaaa
+
+  other_deployment:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: config
+      server:
+        get_resource: server
+      input_values:
+        foo: fu
+        bar: barmy
+      actions:
+      - CREATE
+      - UPDATE
+      - SUSPEND
+      - RESUME
+
+  server:
+    type: OS::Nova::Server
+    properties:
+      image: {get_param: image}
+      flavor: {get_param: flavor}
+      key_name: {get_param: key_name}
+      user_data_format: SOFTWARE_CONFIG
+
+outputs:
+  result:
+    value:
+      get_attr: [deployment, result]
+  stdout:
+    value:
+      get_attr: [deployment, deploy_stdout]
+  stderr:
+    value:
+      get_attr: [deployment, deploy_stderr]
+  status_code:
+    value:
+      get_attr: [deployment, deploy_status_code]
+  other_result:
+    value:
+      get_attr: [other_deployment, result]
