@@ -25,8 +25,7 @@ resources:
       - name: bar
       outputs:
       - name: result
-      config:
-        get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/config-scripts/example-script.sh
+      config: { get_file: example-script.sh }
 
   deployment:
     type: OS::Heat::SoftwareDeployment
