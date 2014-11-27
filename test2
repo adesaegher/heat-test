@@ -16,6 +16,13 @@ parameters:
     description: keypair name use to boot a server
 
 resources:
+  boot_config:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        write_files:
+        - path: /tmp/example-script.sh
+          content: { get_file: example-script.sh }
   scriptconfig:
     type: OS::Heat::SoftwareConfig
     properties:
@@ -25,7 +32,7 @@ resources:
       - name: bar
       outputs:
       - name: result
-      config: { get_file: example-script.sh }
+      config: { get_file: /tmp/example-script.sh }
 
   deployment:
     type: OS::Heat::SoftwareDeployment
