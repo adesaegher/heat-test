@@ -22,7 +22,7 @@ resources:
       cloud_config:
         write_files:
         - path: /tmp/example-script.sh
-          content: { get_file: example-script.sh }
+          content: { get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/config-scripts/example-script.sh }
   scriptconfig:
     type: OS::Heat::SoftwareConfig
     properties:
