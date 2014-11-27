@@ -25,8 +25,13 @@ resources:
       - name: bar
       outputs:
       - name: result
-      config: 
-        get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/example-script.sh 
+      config:|
+        #!/bin/sh -x
+        echo "Writing to /tmp/$bar"
+        echo $foo > /tmp/$bar
+        echo -n "The file /tmp/$bar contains `cat /tmp/$bar` for server $deploy_server_id during $deploy_action" > $heat_outputs_path.result
+        echo "Written to /tmp/$bar"
+        echo "Output to stderr" 1>&2
 
   deployment:
     type: OS::Heat::SoftwareDeployment
