@@ -15,6 +15,7 @@ parameters:
     type: string
     description: keypair name use to boot a server
 
+resources:
   config:
     type: OS::Heat::SoftwareConfig
     properties:
