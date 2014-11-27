@@ -16,7 +16,7 @@ parameters:
     description: keypair name use to boot a server
 
 resources:
-  config:
+  scriptconfig:
     type: OS::Heat::SoftwareConfig
     properties:
       group: script
@@ -33,7 +33,7 @@ resources:
     type: OS::Heat::SoftwareDeployment
     properties:
       config:
-        get_resource: config
+        get_resource: scriptconfig
       server:
         get_resource: server
       input_values:
