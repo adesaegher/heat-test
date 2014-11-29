@@ -52,8 +52,7 @@ resources:
       flavor: { get_param: flavor } 
       key_name: { get_param: key_name } 
       user_data_format: RAW
-      user_data:
-        get_resource: web_config
+      user_data: { get_resource: web_config }
 
 outputs:
   stdout:
