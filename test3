@@ -31,7 +31,14 @@ resources:
       flavor: {get_param: flavor}
       key_name: {get_param: key_name}
       user_data_format: RAW
-      user_data: { get_resource: config }
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash -v
+            echo foo > /tmp/bar
+          params:
+            foo: toto
+            bar: titi
 
 outputs:
   result:
