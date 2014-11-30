@@ -62,8 +62,7 @@ resources:
       image: {get_param: image}
       flavor: {get_param: flavor}
       key_name: {get_param: key_name}
-      user_data:
-        get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/example-script.sh
+      user_data: {get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/example-script.sh}
 
 outputs:
   result:
