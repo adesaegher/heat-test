@@ -1,13 +1,13 @@
 heat_template_version: 2013-05-23
 parameters:
   key_name:
-    type: String
+    type: string
     default: heat_key
   flavor:
-    type: String
+    type: string
     default: m1.small
   image:
-    type: String
+    type: string
     default: CentOS-7-x86_64-os-config2
 resources:
   config:
