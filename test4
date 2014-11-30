@@ -11,7 +11,7 @@ parameters:
     default: m1.small
   image:
     type: string
-    default: fedora-software-config
+    default: CentOS-7-x86_64-os-config2
 
 resources:
   one_init:
