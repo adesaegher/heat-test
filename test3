@@ -24,28 +24,6 @@ resources:
         echo $foo > /tmp/$bar
         echo -n "The file /tmp/$bar contains `cat /tmp/$bar`" > $heat_outputs_path.result
 
-  deployment:
-    type: OS::Heat::SoftwareDeployment
-    properties:
-      config:
-        get_resource: config
-      server:
-        get_resource: server
-      input_values:
-        foo: fooooo
-        bar: baaaaa
-
-  other_deployment:
-    type: OS::Heat::SoftwareDeployment
-    properties:
-      config:
-        get_resource: config
-      server:
-        get_resource: server
-      input_values:
-        foo: fu
-        bar: barmy
-
   server:
     type: OS::Nova::Server
     properties:
