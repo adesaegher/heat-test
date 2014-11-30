@@ -18,11 +18,10 @@ resources:
       - name: bar
       outputs:
       - name: result
-      config:
-        script: |
-          #!/bin/sh -x
-          echo $foo > /tmp/$bar
-          echo -n "The file /tmp/$bar contains `cat /tmp/$bar`" > $heat_outputs_path.result
+      config: |
+        #!/bin/sh -x
+        echo $foo > /tmp/$bar
+        echo -n "The file /tmp/$bar contains `cat /tmp/$bar`" > $heat_outputs_path.result
 
   deployment:
     type: OS::Heat::SoftwareDeployment
