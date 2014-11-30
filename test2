@@ -63,10 +63,7 @@ resources:
       flavor: {get_param: flavor}
       key_name: {get_param: key_name}
       user_data:
-        str_replace:
-          template: {get_file: example-script.sh}
-          params:
-            $FOO: {get_param: foo}
+        get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/example-script.sh
 
 outputs:
   result:
