@@ -30,7 +30,7 @@ resources:
     properties:
       config_id:
         get_resource: config
-      server_id:
+      server:
         get_resource: server
       input_values:
         foo: fooooo
@@ -41,7 +41,7 @@ resources:
     properties:
       config_id:
         get_resource: config
-      server_id:
+      server:
         get_resource: server
       input_values:
         foo: fu
