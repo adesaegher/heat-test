@@ -36,10 +36,8 @@ resources:
   deployment:
     type: OS::Heat::SoftwareDeployment
     properties:
-      config:
-        get_resource: scriptconfig
-      server:
-        get_resource: server
+      config: { get_resource: scriptconfig }
+      server: { get_resource: server }
       input_values:
         foo: fooooo
         bar: baaaaa
@@ -47,10 +45,8 @@ resources:
   other_deployment:
     type: OS::Heat::SoftwareDeployment
     properties:
-      config:
-        get_resource: scriptconfig
-      server:
-        get_resource: server
+      config: { get_resource: scriptconfig }
+      server: { get_resource: server }
       input_values:
         foo: fu
         bar: barmy
