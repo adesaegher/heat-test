@@ -13,7 +13,6 @@ resources:
   config:
     type: OS::Heat::SoftwareConfig
     properties:
-      group: Heat::Shell
       inputs:
       - name: foo
       - name: bar
