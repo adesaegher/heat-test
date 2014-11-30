@@ -1,7 +1,7 @@
 heat_template_version: 2013-05-23
 parameters:
   image:
-    default: centos7-software-config-dhcp
+    default: CentOS-7-x86_64-os-config2
     type: string
     description: Image use to boot a server
   
