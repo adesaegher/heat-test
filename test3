@@ -28,7 +28,7 @@ resources:
   deployment:
     type: OS::Heat::SoftwareDeployment
     properties:
-      config_id:
+      config:
         get_resource: config
       server:
         get_resource: server
@@ -39,7 +39,7 @@ resources:
   other_deployment:
     type: OS::Heat::SoftwareDeployment
     properties:
-      config_id:
+      config:
         get_resource: config
       server:
         get_resource: server
