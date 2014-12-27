@@ -11,6 +11,10 @@ parameters:
     description: FloatingIp, 
     type: string
     default: 10.98.80.19
+  SubnetId:
+    description: SubnetId, 
+    type: string
+    default: 10.98.80.19
   Instancetype:
     type: string
     description: Instance type for the server
@@ -93,7 +97,7 @@ resources:
       ImageId: { get_param: ImageId }
       InstanceType: { get_param: Instancetype }
       KeyName: {Ref: KeyName}
-      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      SubnetId: {Ref: SubnetId}
       UserData:
         str_replace:
           template: |
@@ -133,7 +137,7 @@ resources:
       ImageId: { get_param: ImageId }
       InstanceType: { get_param: Instancetype }
       KeyName: {Ref: KeyName}
-      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      SubnetId: {Ref: SubnetId}
       UserData:
         str_replace:
           template: |
@@ -170,7 +174,7 @@ resources:
       ImageId: { get_param: ImageId }
       InstanceType: { get_param: Instancetype }
       KeyName: {Ref: KeyName}
-      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      SubnetId: {Ref: SubnetId}
       UserData:
         str_replace:
           template: |
@@ -208,7 +212,7 @@ resources:
       ImageId: { get_param: ImageId }
       InstanceType: { get_param: Instancetype }
       KeyName: {Ref: KeyName}
-      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      SubnetId: {Ref: SubnetId}
       UserData:
         str_replace:
           template: |
@@ -247,7 +251,7 @@ resources:
       ImageId: { get_param: ImageId }
       InstanceType: { get_param: Instancetype }
       KeyName: {Ref: KeyName}
-      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      SubnetId: {Ref: SubnetId}
       UserData:
         str_replace:
           template: |
