@@ -25,9 +25,9 @@ parameters:
   ImageId:
     type: string
     description: ID of the image to use for the server
-    default: centos-6.5_x86_64-cnftools
+    default: CentOS-7-x86_64-cfntools-boto2.12.0
     constraints:
-      - allowed_values: [ centos-6.5_x86_64-cnftools, centos-6.5_x86_64-cnftools ]
+      - allowed_values: [ CentOS-7-x86_64-cfntools-boto2.12.0, CentOS-7-x86_64-cfntools-boto2.12.0 ]
         description: >
           Image ID must be either centos-6.5_x86_64-cnftools or centos-6.5_x86_64-cnftools
   DBName:
