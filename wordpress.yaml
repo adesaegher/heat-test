@@ -7,6 +7,9 @@ parameter_groups:
   description: paramétrage SGBD
   parameters:
   - DBName
+      type: string
+      description: Database name
+      default: BDD
   - DBUsername
   - DBPassword
   - DBRootPassword
