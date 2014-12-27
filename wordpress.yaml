@@ -1,0 +1,287 @@
+heat_template_version: 2013-05-23
+
+description: >
+  template de déploiement d une application sur 2 instances tomcat, une base mmysql, un haproxy et un apache frontal
+
+parameters:
+  KeyName:
+    type: string
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+  FloatingIP:
+    description: FloatingIp, 
+    type: string
+    default: 10.98.80.19
+  Instancetype:
+    type: string
+    description: Instance type for the server
+    default: m1.small
+    constraints:
+      - allowed_values: [m1.small, m1.medium, m1.large]
+        description: Instancetype must be one of m1.small, m1.medium or m1.large
+  ImageId:
+    type: string
+    description: ID of the image to use for the server
+    default: centos-6.5_x86_64-cnftools
+    constraints:
+      - allowed_values: [ centos-6.5_x86_64-cnftools, centos-6.5_x86_64-cnftools ]
+        description: >
+          Image ID must be either centos-6.5_x86_64-cnftools or centos-6.5_x86_64-cnftools
+  DBName:
+    type: string
+    description: Database name
+    default: BDD
+    constraints:
+      - length: { min: 1, max: 64 }
+        description: DBName must be between 1 and 64 characters
+      - allowed_pattern: '[a-zA-Z][a-zA-Z0-9]*'
+        description: >
+          DBName must begin with a letter and contain only alphanumeric
+          characters
+  DBUsername:
+    type: string
+    description: The Database admin account username
+    default: admin
+    hidden: true
+    constraints:
+      - length: { min: 1, max: 16 }
+        description: DBUsername must be between 1 and 64 characters
+      - allowed_pattern: '[a-zA-Z][a-zA-Z0-9]*'
+        description: >
+          DBUsername must begin with a letter and contain only alphanumeric
+          characters
+  DBPassword:
+    type: string
+    description: The Database admin account password
+    default: admin
+    hidden: true
+    constraints:
+      - length: { min: 1, max: 41 }
+        description: DBUsername must be between 1 and 64 characters
+      - allowed_pattern: '[a-zA-Z0-9]*'
+        description: DBPassword must contain only alphanumeric characters
+  DBRootPassword:
+    type: string
+    description: Root password for MySQL
+    default: admin
+    hidden: true
+    constraints:
+      - length: { min: 1, max: 41 }
+        description: DBUsername must be between 1 and 64 characters
+      - allowed_pattern: '[a-zA-Z0-9]*'
+        description: DBPassword must contain only alphanumeric characters
+
+resources:
+  DatabaseServer:
+    # Use an AWS resource type and switch to native compute instance as
+    # soon as it is available
+    type: AWS::EC2::Instance
+    # Have to use AWS::EC::Instance metadata syntax for now
+    metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              mysql: []
+              mysql-server: []
+              httpd: []
+              wordpress: []
+          services:
+            sysvinit:
+              mysqld: {enabled: 'true', ensureRunning: 'true'}
+              httpd: {enabled: 'true', ensureRunning: 'true'}
+    properties:
+      ImageId: { get_param: ImageId }
+      InstanceType: { get_param: Instancetype }
+      KeyName: {Ref: KeyName}
+      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      UserData:
+        str_replace:
+          template: |
+            #!/bin/bash -v
+
+            /opt/aws/bin/cfn-init
+
+            # Setup MySQL root password and create a user
+            mysqladmin -u root password $db_rootpassword
+            cat << EOF | mysql -u root --password=$db_rootpassword
+            CREATE DATABASE $db_name;
+            GRANT ALL PRIVILEGES ON $db_name.* TO "$db_user"@"%"
+            IDENTIFIED BY "$db_password";
+            FLUSH PRIVILEGES;
+            EXIT
+            EOF
+          params:
+            $db_rootpassword: { get_param: DBRootPassword }
+            $db_name: { get_param: DBName }
+            $db_user: { get_param: DBUsername }
+            $db_password: { get_param: DBPassword }			
+  ApacheFrontal:
+    # Use an AWS resource type and switch to native compute instance as
+    # soon as it is available
+    type: AWS::EC2::Instance
+    # Have to use AWS::EC::Instance metadata syntax for now
+    metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              httpd: []
+          services:
+            sysvinit:
+              httpd: {enabled: 'true', ensureRunning: 'true'}
+    properties:
+      ImageId: { get_param: ImageId }
+      InstanceType: { get_param: Instancetype }
+      KeyName: {Ref: KeyName}
+      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      UserData:
+        str_replace:
+          template: |
+            #!/bin/bash -v			
+            /opt/aws/bin/cfn-init
+            cat > /etc/httpd/conf.d/wordpress.conf <<EOF
+            RewriteEngine On
+            RewriteOptions Inherit
+            ProxyPreserveHost On
+            ProxyRequests Off
+            ProxyPass / http://$loadbalancer_ip:80/
+            ProxyPassReverse / http://$loadbalancer_ip:80/
+            EOF
+            setsebool httpd_can_network_connect=1
+            service httpd restart
+          params:
+            $loadbalancer_ip: { get_attr: [LoadBalancerInstance, PublicIp] }
+  WikiServerOne:
+    # Use an AWS resource type and switch to native compute instance as
+    # soon as it is available
+    type: AWS::EC2::Instance
+    # Have to use AWS::EC::Instance metadata syntax for now
+    metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              httpd: []
+              wordpress: []
+          services:
+            sysvinit:
+              httpd: {enabled: 'true', ensureRunning: 'true'}
+    properties:
+      ImageId: { get_param: ImageId }
+      InstanceType: { get_param: Instancetype }
+      KeyName: {Ref: KeyName}
+      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      UserData:
+        str_replace:
+          template: |
+            #!/bin/bash -v			
+            /opt/aws/bin/cfn-init
+            sed -i "/Deny from All/d" /etc/httpd/conf.d/wordpress.conf
+            sed -i "s/Require local/Require all granted/" /etc/httpd/conf.d/wordpress.conf
+            sed -i s/database_name_here/$db_name/ /etc/wordpress/wp-config.php
+            sed -i s/username_here/$db_user/ /etc/wordpress/wp-config.php
+            sed -i s/password_here/$db_password/ /etc/wordpress/wp-config.php
+            sed -i s/localhost/$db_ip/ /etc/wordpress/wp-config.php
+            sleep 10
+            service httpd restart
+          params:
+            $db_name: { get_param: DBName }
+            $db_user: { get_param: DBUsername }
+            $db_password: { get_param: DBPassword }
+            $db_ip: { get_attr: [DatabaseServer, PublicIp] }			
+  WikiServerTwo:
+    # Use an AWS resource type and switch to native compute instance as
+    # soon as it is available
+    type: AWS::EC2::Instance
+    # Have to use AWS::EC::Instance metadata syntax for now
+    metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              httpd: []
+              wordpress: []
+          services:
+            sysvinit:
+              httpd: {enabled: 'true', ensureRunning: 'true'}
+    properties:
+      ImageId: { get_param: ImageId }
+      InstanceType: { get_param: Instancetype }
+      KeyName: {Ref: KeyName}
+      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      UserData:
+        str_replace:
+          template: |
+            #!/bin/bash -v			
+            /opt/aws/bin/cfn-init
+            sed -i "/Deny from All/d" /etc/httpd/conf.d/wordpress.conf
+            sed -i "s/Require local/Require all granted/" /etc/httpd/conf.d/wordpress.conf
+            sed -i s/database_name_here/$db_name/ /etc/wordpress/wp-config.php
+            sed -i s/username_here/$db_user/ /etc/wordpress/wp-config.php
+            sed -i s/password_here/$db_password/ /etc/wordpress/wp-config.php
+            sed -i s/localhost/$db_ip/ /etc/wordpress/wp-config.php
+            sleep 10
+            service httpd restart
+          params:
+            $db_name: { get_param: DBName }
+            $db_user: { get_param: DBUsername }
+            $db_password: { get_param: DBPassword }
+            $db_ip: { get_attr: [DatabaseServer, PublicIp] }			
+  FrontalIPAssoc:
+    type: AWS::EC2::EIPAssociation
+    properties:
+      InstanceId: {Ref: ApacheFrontal}
+      EIP: {Ref: FloatingIP}	  
+  LoadBalancerInstance:
+    type: AWS::EC2::Instance
+    metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+              haproxy: []
+          services:
+            sysvinit:
+              haproxy: {enabled: 'true', ensureRunning: 'true'}
+    properties:
+      ImageId: { get_param: ImageId }
+      InstanceType: { get_param: Instancetype }
+      KeyName: {Ref: KeyName}
+      SubnetId: d9f0604c-50f7-4edb-9a77-5a60b73387bf
+      UserData:
+        str_replace:
+          template: |
+            #!/bin/bash -v			
+            /opt/aws/bin/cfn-init
+            cat > /etc/haproxy/haproxy.cfg <<EOF
+            global
+                daemon
+                maxconn 256
+            defaults
+                mode http
+                timeout connect 5000ms
+                timeout client 50000ms
+                timeout server 50000ms
+            frontend http-in
+                bind *:80
+                default_backend servers
+            backend servers
+                balance roundrobin
+                option http-server-close
+                option forwardfor
+                server WikiServerOne $serverone_ip:80
+                server WikiServerTwo $servertwo_ip:80
+            EOF
+            service haproxy restart
+          params:
+            $serverone_ip: { get_attr: [WikiServerOne, PublicIp] }
+            $servertwo_ip: { get_attr: [WikiServerTwo, PublicIp] }
+outputs:
+  WebsiteURL:
+    description: URL for Wordpress wiki
+    value:
+      str_replace:
+        template: http://$host/wordpress, http://$host_float/wordpress
+        params:
+          $host: { get_attr: [ApacheFrontal, PublicIp] }
+          $host_float: {Ref: FloatingIP}
