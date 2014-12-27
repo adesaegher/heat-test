@@ -2,7 +2,14 @@ heat_template_version: 2013-05-23
 
 description: >
   template de déploiement d une application sur 2 instances tomcat, une base mmysql, un haproxy et un apache frontal
-
+parameter_groups:
+- label: SGBD
+  description: paramétrage SGBD
+  parameters:
+  - DBName
+  - DBUsername
+  - DBPassword
+  - DBRootPassword
 parameters:
   KeyName:
     type: string
