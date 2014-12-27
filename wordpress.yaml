@@ -14,7 +14,7 @@ parameters:
   SubnetId:
     description: SubnetId, 
     type: string
-    default: 10.98.80.19
+    default: 77d1f47d-6d1c-4f4f-9e8d-ec3230676964
   Instancetype:
     type: string
     description: Instance type for the server
