@@ -10,7 +10,7 @@ parameters:
   FloatingIP:
     description: FloatingIp, 
     type: string
-    default: 10.98.80.19
+    default: 192.168.0.136
   SubnetId:
     description: SubnetId, 
     type: string
