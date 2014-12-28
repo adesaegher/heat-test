@@ -18,6 +18,10 @@ parameter_groups:
   - SubnetId
   - Instancetype
   - ImageId
+Mappings
+  FloatingToDns:
+    192.168.0.136: {Dns: 'test136.fr'}
+    192.168.0.137: {Dns: 'test137.fr'}
 parameters:
   KeyName:
     type: string
@@ -300,7 +304,15 @@ outputs:
     description: URL for Wordpress wiki
     value:
       str_replace:
-        template: http://$host/wordpress, http://$host_float/wordpress
+        template: http://$host/wordpress \n http://$host_float/wordpress
         params:
           $host: { get_attr: [ApacheFrontal, PublicIp] }
           $host_float: {Ref: FloatingIP}
+  WebsitednsURL:
+    description: URL dns for Wordpress wiki
+    value:
+      str_replace:
+        template: http://$dns/wordpress
+        params:
+          $dns: {"Fn::FindInMap": ["FloatingToDns", "{Ref: FloatingIP}", "Dns" ] }
+       
