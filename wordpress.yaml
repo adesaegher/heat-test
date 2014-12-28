@@ -18,7 +18,7 @@ parameter_groups:
   - SubnetId
   - Instancetype
   - ImageId
-Mapping:
+mapping:
   FloatingToDns:
     192.168.0.136: {Dns: 'test136.fr'}
     192.168.0.137: {Dns: 'test137.fr'}
