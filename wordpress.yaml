@@ -1,7 +1,11 @@
 heat_template_version: 2013-05-23
 
 description: >
-  template de déploiement d une application sur 2 instances tomcat, une base mmysql, un haproxy et un apache frontal
+  template de déploiement d une application sur 2 instances tomcat, une base mysql, un haproxy et un apache frontal
+Mappings:
+  FloatingToDns:
+    192.168.0.136: {Dns: 'test136.fr'}
+    192.168.0.137: {Dns: 'test137.fr'}
 parameter_groups:
 - label: SGBD
   description: paramétrage SGBD
@@ -18,10 +22,6 @@ parameter_groups:
   - SubnetId
   - Instancetype
   - ImageId
-Mappings:
-  FloatingToDns:
-    192.168.0.136: {Dns: 'test136.fr'}
-    192.168.0.137: {Dns: 'test137.fr'}
 parameters:
   KeyName:
     type: string
