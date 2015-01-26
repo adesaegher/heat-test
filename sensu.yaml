@@ -1,4 +1,5 @@
-heat_template_version: "2012-12-12"
+heat_template_version: 2013-05-23
+
 description: >
   template de déploiement d une application sur 2 instances tomcat, une base mysql, un haproxy et un apache frontal
 parameters:
