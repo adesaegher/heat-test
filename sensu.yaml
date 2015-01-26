@@ -71,9 +71,9 @@ resources:
             /opt/aws/bin/cfn-init
 
             # Setup MySQL root password and create a user
-            yum install openssl
-            yum install epel-release
-            yum install erlang
+            yum install -y openssl wget
+            yum install -y epel-release
+            yum install -y erlang
             rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
             rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.2.1/rabbitmq-server-3.2.1-1.noarch.rpm
             chkconfig rabbitmq-server on
