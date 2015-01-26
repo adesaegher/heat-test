@@ -1,0 +1,120 @@
+heat_template_version: 2012-12-12
+
+description: >
+  template de déploiement d une application sur 2 instances tomcat, une base mysql, un haproxy et un apache frontal
+parameters:
+  KeyName:
+    type: string
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+  FloatingIP:
+    description: FloatingIp, 
+    type: string
+    default: 192.168.0.136
+  SubnetId:
+    description: SubnetId, 
+    type: string
+    default: 77d1f47d-6d1c-4f4f-9e8d-ec3230676964
+  Instancetype:
+    type: string
+    description: Instance type for the server
+    default: m1.small
+    constraints:
+      - allowed_values: [m1.small, m1.medium, m1.large]
+        description: Instancetype must be one of m1.small, m1.medium or m1.large
+  ImageId:
+    type: string
+    description: ID of the image to use for the server
+    default: CentOS-7-x86_64-cfntools-boto2.12.0
+    constraints:
+      - allowed_values: [ CentOS-7-x86_64-cfntools-boto2.12.0, CentOS-7-x86_64-cfntools-boto2.12.0 ]
+        description: >
+          Image ID must be either centos-6.5_x86_64-cnftools or centos-6.5_x86_64-cnftools
+  SensuUser:
+    type: string
+    description: The Database admin account username
+    default: admin
+    hidden: true
+    constraints:
+      - length: { min: 1, max: 16 }
+        description: DBUsername must be between 1 and 64 characters
+      - allowed_pattern: '[a-zA-Z][a-zA-Z0-9]*'
+        description: >
+          DBUsername must begin with a letter and contain only alphanumeric
+          characters
+  SensuPassword:
+    type: string
+    description: The Database admin account password
+    default: admin
+    hidden: true
+    constraints:
+      - length: { min: 1, max: 41 }
+        description: DBUsername must be between 1 and 64 characters
+      - allowed_pattern: '[a-zA-Z0-9]*'
+        description: DBPassword must contain only alphanumeric characters
+
+resources:
+  SensuServer:
+    # Use an AWS resource type and switch to native compute instance as
+    # soon as it is available
+    type: AWS::EC2::Instance
+    # Have to use AWS::EC::Instance metadata syntax for now
+    properties:
+      ImageId: { get_param: ImageId }
+      InstanceType: { get_param: Instancetype }
+      KeyName: {Ref: KeyName}
+      SubnetId: {Ref: SubnetId}
+      UserData:
+        str_replace:
+          template: |
+            #!/bin/bash -v
+
+            /opt/aws/bin/cfn-init
+
+            # Setup MySQL root password and create a user
+            yum install openssl
+            yum install epel-release
+            yum install erlang
+            rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+            rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.2.1/rabbitmq-server-3.2.1-1.noarch.rpm
+            chkconfig rabbitmq-server on
+            /etc/init.d/rabbitmq-server start
+            mkdir -p /etc/rabbitmq/ssl
+            cd /tmp
+            wget http://sensuapp.org/docs/0.16/tools/ssl_certs.tar
+            tar -xvf ssl_certs.tar
+            cd ssl_certs
+            ./ssl_certs.sh generate
+            cp sensu_ca/cacert.pem /etc/rabbitmq/ssl/
+            cp server/*.pem /etc/rabbitmq/ssl/
+            cat > /etc/rabbitmq/rabbitmq.config <<EOF
+            [
+             {rabbit, [
+             {ssl_listeners, [5671]},
+             {ssl_options, [{cacertfile,"/etc/rabbitmq/ssl/cacert.pem"},
+                            {certfile,"/etc/rabbitmq/ssl/cert.pem"},
+                            {keyfile,"/etc/rabbitmq/ssl/key.pem"},
+                            {verify,verify_peer},
+                            {fail_if_no_peer_cert,true}]}
+              ]}
+            ].
+            EOF
+            /etc/init.d/rabbitmq-server restart
+            rabbitmqctl add_vhost /sensu
+            rabbitmqctl add_user sensu mypass
+            rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
+            yum install redis
+            /sbin/chkconfig redis on
+            /etc/init.d/redis start
+            cat >> /etc/yum.repos.d/sensu.repo <<EOF
+            [sensu]
+            name=sensu-main
+            baseurl=http://repos.sensuapp.org/yum/el/$releasever/$basearch/
+            gpgcheck=0
+            enabled=1
+            EOF
+            yum install sensu
+          params:
+            $SensuUser: { get_param: SensuUser }
+            $SensuPassword: { get_param: SensuPassword }			
+
+       
