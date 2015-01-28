@@ -129,7 +129,7 @@ resources:
                   "cert_chain_file": "/etc/sensu/ssl/cert.pem",
                   "private_key_file": "/etc/sensu/ssl/key.pem"
                 },
-                "host": "$sensu_ip",
+                "host": "localhost",
                 "port": 5671,
                 "vhost": "/sensu",
                 "user": "sensu",
@@ -159,7 +159,7 @@ resources:
             {
               "client": {
                 "name": "sensu",
-                "address": "$sensu_ip",
+                "address": "localhost",
                 "subscriptions": [ "all" ]
               }
             }
@@ -173,6 +173,5 @@ resources:
           params:
             $SensuUser: { get_param: SensuUser }
             $SensuPassword: { get_param: SensuPassword }
-            $sensu_ip: { get_attr: [SensuServer_port,fixed_ips, 0, ip_address]}
 
        
