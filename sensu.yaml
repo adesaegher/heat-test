@@ -173,6 +173,6 @@ resources:
           params:
             $SensuUser: { get_param: SensuUser }
             $SensuPassword: { get_param: SensuPassword }
-            $sensu_ip: { get_attr: [SensuServer, PublicIp] }		
+            $sensu_ip: { get_attr: [SensuServer_port,fixed_ips, 0, ip_address]}
 
        
