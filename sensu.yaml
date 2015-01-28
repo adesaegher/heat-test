@@ -58,6 +58,13 @@ resources:
     # soon as it is available
     type: AWS::EC2::Instance
     # Have to use AWS::EC::Instance metadata syntax for now
+    metadata:
+      AWS::CloudFormation::Init:
+        config:
+          packages:
+            yum:
+          services:
+            sysvinit:
     properties:
       ImageId: { get_param: ImageId }
       InstanceType: { get_param: Instancetype }
@@ -122,11 +129,11 @@ resources:
                   "cert_chain_file": "/etc/sensu/ssl/cert.pem",
                   "private_key_file": "/etc/sensu/ssl/key.pem"
                 },
-                "host": "localhost",
+                "host": "$sensu_ip",
                 "port": 5671,
                 "vhost": "/sensu",
                 "user": "sensu",
-                "password": "SUBSTITUTE_ME"
+                "password": "secret"
               }
             }
             EOF
@@ -151,8 +158,8 @@ resources:
             cat >> /etc/sensu/conf.d/client.json <<EOF
             {
               "client": {
-                "name": "SUBSTITUTE_ME",
-                "address": "SUBSTITUTE_ME",
+                "name": "sensu",
+                "address": "$sensu_ip",
                 "subscriptions": [ "all" ]
               }
             }
@@ -165,6 +172,7 @@ resources:
             /etc/init.d/sensu-api start
           params:
             $SensuUser: { get_param: SensuUser }
-            $SensuPassword: { get_param: SensuPassword }			
+            $SensuPassword: { get_param: SensuPassword }
+            $sensu_ip: { get_attr: [SensuServer, PublicIp] }		
 
        
