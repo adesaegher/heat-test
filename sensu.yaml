@@ -170,8 +170,8 @@ resources:
             /etc/init.d/sensu-server start
             /etc/init.d/sensu-client start
             /etc/init.d/sensu-api start
-           yum install -y uchiwa
-           cat > /etc/sensu/uchiwa.json <<EOF
+            yum install -y uchiwa
+            cat > /etc/sensu/uchiwa.json <<EOF
             {
                 "sensu": [
                     {
