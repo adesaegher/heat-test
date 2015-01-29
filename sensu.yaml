@@ -170,6 +170,32 @@ resources:
             /etc/init.d/sensu-server start
             /etc/init.d/sensu-client start
             /etc/init.d/sensu-api start
+           yum install -y uchiwa
+           cat > /etc/sensu/uchiwa.json <<EOF
+            {
+                "sensu": [
+                    {
+                        "name": "Sensu",
+                        "host": "127.0.0.1",
+                        "ssl": false,
+                        "port": 4567,
+                        "user": "",
+                        "pass": "",
+                        "path": "",
+                        "timeout": 5000
+                    }
+                ],
+                "uchiwa": {
+                    "user": "",
+                    "pass": "",
+                    "port": 3000,
+                    "stats": 10,
+                    "refresh": 10000
+                }
+            }
+            EOF
+            chkconfig uchiwa on
+            service uchiwa start
           params:
             $SensuUser: { get_param: SensuUser }
             $SensuPassword: { get_param: SensuPassword }
