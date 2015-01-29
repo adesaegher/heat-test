@@ -179,8 +179,8 @@ resources:
                         "host": "127.0.0.1",
                         "ssl": false,
                         "port": 4567,
-                        "user": "",
-                        "pass": "",
+                        "user": "admin",
+                        "pass": "secret",
                         "path": "",
                         "timeout": 5000
                     }
