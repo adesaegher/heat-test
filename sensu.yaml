@@ -113,7 +113,7 @@ resources:
             rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
             yum install -y redis
             /sbin/chkconfig redis on
-            /etc/init.d/redis start
+            service redis start
             cat >> /etc/yum.repos.d/sensu.repo <<EOF
             [sensu]
             name=sensu-main
