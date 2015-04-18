@@ -6,7 +6,7 @@ parameters:
     type: string
   image:
     type: string
-    default: fedora-software-config
+    default: centos7-software-config2
 
 resources:
   the_sg:
@@ -30,7 +30,7 @@ resources:
       outputs:
       - name: result
       config:
-        get_file: config-scripts/example-script.sh
+        get_file: https://raw.githubusercontent.com/adesaegher/heat-test/master/example-templates/config-scripts/example-script.sh
 
   deployment:
     type: OS::Heat::SoftwareDeployment
