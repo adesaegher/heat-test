@@ -1,0 +1,18 @@
+{
+    "type": "ExistingCloud",
+    "auth_url": "http://192.168.0.17:5000/v2.0",
+    "region_name": "RegionOne",
+    "endpoint_type": "public",
+    "admin": {
+        "username": "demo",
+        "password": "******",
+        "tenant_name": "cookbook"
+    },
+    "users": [
+        {
+            "username": "titi",
+            "password": "*******",
+            "tenant_name": "testing"
+        }
+    ]
+}
