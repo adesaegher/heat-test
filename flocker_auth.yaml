@@ -3,20 +3,22 @@ heat_template_version: 2015-10-15
 parameters:
   first_address_list:
     type: json
-  index:
-    type: number
 
-resources:
 resources:
   Node_config:
     type: OS::Heat::SoftwareConfig
     properties:
       group: script
+      outputs:
+        - name: cluster.crt
+        - name: nodes.crt
+        - name: nodes.key
       config: |
         #!/bin/bash
         mkdir /etc/flocker
         cd /etc/flocker
         flocker-ca initialize $consul_path
+        cat cluster.crt > ${heat_outputs_path}.cluster.crt
         flocker-ca create-control-certificate $local_ip
         mv control-$local_ip.key control-service.key
         mv control-$local_ip.crt control-service.crt
@@ -25,22 +27,28 @@ resources:
         for i in $first_address_list
         do
         flocker-ca create-node-certificate
-        cat cluster.crt > ${heat_outputs_path}.cluster.crt
-        cat $(ls *.key | grep -v cluster | grep -v control) | paste -d, -s > ${heat_outputs_path}.nodes.key
-        cat $(ls *.crt | grep -v cluster | grep -v control) | paste -d, -s > ${heat_outputs_path}.nodes.crt
-
-  deployment_a:
+        cat $(ls -tr *.key | tail -1) >> ${heat_outputs_path}.nodes.key
+        cat $(ls -tr *.crt | tail -1) >> ${heat_outputs_path}.nodes.crt
+        done
+        csplit -szf file ca-certificates.crt /-----END\ CERTIFICATE-----/+1 {*}
+  Node_deployment:
     type: OS::Heat::SoftwareDeployment
     properties:
+      input_values:
+        first_address_list: {get_param: first_address_list}
       config:
-        get_resource: config
+        get_resource: Node_config
       server:
-        get_resource: server_a
-  random:
-    type: OS::Heat::RandomString
-    properties:
-      length: {get_param: [lengths, {get_param: index}]}
+        get_param: server
 
 outputs:
-  value:
-    value: {get_attr: [random, value]}
+
+  cluster.crt:
+    value:
+      get_attr: [Node_deployment, cluster.crt]
+  nodes.crt:
+    value:
+      get_attr: [Node_deployment, nodes.crt]
+  nodes.key:
+    value:
+      get_attr: [Node_deployment, nodes.key]
