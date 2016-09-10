@@ -1,0 +1,46 @@
+heat_template_version: 2015-10-15
+
+parameters:
+  first_address_list:
+    type: json
+  index:
+    type: number
+
+resources:
+resources:
+  Node_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      config: |
+        #!/bin/bash
+        mkdir /etc/flocker
+        cd /etc/flocker
+        flocker-ca initialize $consul_path
+        flocker-ca create-control-certificate $local_ip
+        mv control-$local_ip.key control-service.key
+        mv control-$local_ip.crt control-service.crt
+        chmod 0700 /etc/flocker
+        chmod 0600 /etc/flocker/control-service.key
+        for i in $first_address_list
+        do
+        flocker-ca create-node-certificate
+        cat cluster.crt > ${heat_outputs_path}.cluster.crt
+        cat $(ls *.key | grep -v cluster | grep -v control) | paste -d, -s > ${heat_outputs_path}.nodes.key
+        cat $(ls *.crt | grep -v cluster | grep -v control) | paste -d, -s > ${heat_outputs_path}.nodes.crt
+
+  deployment_a:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      config:
+        get_resource: config
+      server:
+        get_resource: server_a
+  random:
+    type: OS::Heat::RandomString
+    properties:
+      length: {get_param: [lengths, {get_param: index}]}
+
+outputs:
+  value:
+    value: {get_attr: [random, value]}
