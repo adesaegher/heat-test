@@ -1,0 +1,54 @@
+heat_template_version: 2015-10-15
+
+parameters:
+  servers:
+    type: json
+  cluster.crt:
+    type: string
+  nodes.crt:
+    type: string
+  nodes.key:
+    type: string
+  plugin.crt:
+    type: string
+  plugin.key:
+    type: string
+
+resources:
+  Node_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      config: |
+        #!/bin/bash
+        source /etc/environment
+        mkdir /etc/flocker
+        cd /etc/flocker
+        echo $clustercrt >> cluster.crt
+        echo $nodescrt >> nodes.crt
+        echo $nodeskey >> nodes.key
+        echo $plugincrt >> plugin.crt
+        echo $pluginkey >> plugin.key
+        csplit -n 1 -szf file nodes.crt /-----END\ CERTIFICATE-----/+1 {*}
+        mv "file$INDEX" node.crt
+        rm -rf file*
+        csplit -n 1 -szf file nodes.key /-----END\ CERTIFICATE-----/+1 {*}
+        mv "file$INDEX" node.key
+        rm -rf file*
+        rm -rf nodes*
+
+        
+  Node_deployment:
+    type: OS::Heat::SoftwareDeploymentGroup
+    properties:
+      input_values:
+        clustercrt: {get_param: cluster.crt}
+        nodescrt: {get_param: nodes.crt}
+        nodeskey: {get_param: nodes.key}
+        plugincrt: {get_param: plugin.crt}
+        pluginkey: {get_param: plugin.key}
+      config:
+        get_resource: Node_config
+      servers:
+        get_param: servers
+
