@@ -13,6 +13,8 @@ resources:
         - name: cluster.crt
         - name: nodes.crt
         - name: nodes.key
+        - name: plugin.crt
+        - name: plugin.key
       config: |
         #!/bin/bash
         mkdir /etc/flocker
@@ -30,6 +32,9 @@ resources:
         cat $(ls -tr *.key | tail -1) >> ${heat_outputs_path}.nodes.key
         cat $(ls -tr *.crt | tail -1) >> ${heat_outputs_path}.nodes.crt
         done
+        flocker-ca create-api-certificate plugin
+        cat plugin.crt > ${heat_outputs_path}.plugin.crt
+        cat plugin.key > ${heat_outputs_path}.plugin.key
         csplit -szf file ca-certificates.crt /-----END\ CERTIFICATE-----/+1 {*}
   Node_deployment:
     type: OS::Heat::SoftwareDeployment
@@ -52,3 +57,9 @@ outputs:
   nodes.key:
     value:
       get_attr: [Node_deployment, nodes.key]
+  plugin.crt:
+    value:
+      get_attr: [Node_deployment, plugin.crt]
+  plugin.key:
+    value:
+      get_attr: [Node_deployment, plugin.key]
